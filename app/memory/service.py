@@ -27,7 +27,15 @@ class MemoryService:
         content: str,
         importance: int = 5,
     ) -> dict[str, Any]:
-        """Save a memory for a user."""
+        """Save a memory for the authenticated user."""
+
+        if not content.strip():
+            raise ValueError("Memory content cannot be empty.")
+
+        if not 1 <= importance <= 10:
+            raise ValueError(
+                "Memory importance must be between 1 and 10."
+            )
 
         response = (
             self.client
@@ -36,7 +44,7 @@ class MemoryService:
                 {
                     "user_id": user_id,
                     "category": category,
-                    "content": content,
+                    "content": content.strip(),
                     "importance": importance,
                 }
             )
@@ -52,7 +60,7 @@ class MemoryService:
         self,
         user_id: str,
     ) -> list[dict[str, Any]]:
-        """Retrieve memories belonging to a user."""
+        """Retrieve memories for the authenticated user."""
 
         response = (
             self.client
