@@ -2,12 +2,13 @@
 JTech AI Backend
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
-from app.core.config import settings
-from app.core.identity import AI_NAME, AI_FULL_NAME, DEVELOPER_NAME
 from app.ai.brain import jtech_brain
+from app.auth.dependencies import get_current_user
+from app.core.config import settings
+from app.core.identity import AI_FULL_NAME, AI_NAME, DEVELOPER_NAME
 
 
 app = FastAPI(
@@ -24,6 +25,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     assistant: str
     message: str
+    user_id: str
 
 
 @app.get("/")
@@ -46,8 +48,11 @@ async def health():
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
-    """Send a message to JTech and receive an AI response."""
+async def chat(
+    request: ChatRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """Send a message to JTech as an authenticated user."""
 
     if not request.message.strip():
         raise HTTPException(
@@ -63,6 +68,7 @@ async def chat(request: ChatRequest):
         return ChatResponse(
             assistant=AI_NAME,
             message=response,
+            user_id=current_user["id"],
         )
 
     except Exception as exc:
