@@ -96,5 +96,33 @@ class MemoryService:
 
         return response.data or []
 
+    async def get_memory_context(
+        self,
+        user_id: str,
+        access_token: str,
+        max_memories: int = 10,
+    ) -> str:
+        """Build relevant memory context for JTech."""
+
+        from app.memory.context import build_memory_context
+
+        memories = await self.get_memories(
+            user_id=user_id,
+            access_token=access_token,
+        )
+
+        memories.sort(
+            key=lambda memory: (
+                memory.get("importance", 5),
+                memory.get("created_at", ""),
+            ),
+            reverse=True,
+        )
+
+        return build_memory_context(
+            memories=memories,
+            max_memories=max_memories,
+        )
+
 
 memory_service = MemoryService()
