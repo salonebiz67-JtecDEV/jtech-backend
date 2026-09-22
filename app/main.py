@@ -11,6 +11,7 @@ from app.api.conversations import (
 )
 from app.api.memory import router as memory_router
 from app.api.settings import router as settings_router
+from app.api.tasks import router as tasks_router
 from app.auth.dependencies import get_current_user
 from app.conversation.service import conversation_service
 from app.core.config import settings
@@ -49,6 +50,8 @@ app.include_router(memory_router)
 app.include_router(conversations_router)
 
 app.include_router(settings_router)
+
+app.include_router(tasks_router)
 
 
 @app.get("/")
