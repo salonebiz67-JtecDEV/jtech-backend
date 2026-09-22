@@ -20,8 +20,8 @@ class MemoryService:
         access_token: str,
     ) -> Client:
         """
-        Create a Supabase client using the authenticated
-        user's access token.
+        Create a Supabase client and attach the user's
+        access token to database requests.
         """
 
         client: Client = create_client(
@@ -29,10 +29,7 @@ class MemoryService:
             settings.supabase_key,
         )
 
-        client.auth.set_session(
-            access_token,
-            "",
-        )
+        client.postgrest.auth(access_token)
 
         return client
 
