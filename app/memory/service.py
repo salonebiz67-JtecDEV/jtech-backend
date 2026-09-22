@@ -1,7 +1,8 @@
 """
 JTech AI — Memory Service
 
-Handles long-term memory operations using Supabase.
+Handles long-term memory operations using Supabase
+with authenticated user context.
 """
 
 from typing import Any
@@ -14,15 +15,31 @@ from app.core.config import settings
 class MemoryService:
     """Handles JTech long-term memory."""
 
-    def __init__(self) -> None:
-        self.client: Client = create_client(
+    def _get_authenticated_client(
+        self,
+        access_token: str,
+    ) -> Client:
+        """
+        Create a Supabase client using the authenticated
+        user's access token.
+        """
+
+        client: Client = create_client(
             settings.supabase_url,
             settings.supabase_key,
         )
 
+        client.auth.set_session(
+            access_token,
+            "",
+        )
+
+        return client
+
     async def save_memory(
         self,
         user_id: str,
+        access_token: str,
         category: str,
         content: str,
         importance: int = 5,
@@ -37,8 +54,12 @@ class MemoryService:
                 "Memory importance must be between 1 and 10."
             )
 
+        client = self._get_authenticated_client(
+            access_token
+        )
+
         response = (
-            self.client
+            client
             .table("memories")
             .insert(
                 {
@@ -59,11 +80,16 @@ class MemoryService:
     async def get_memories(
         self,
         user_id: str,
+        access_token: str,
     ) -> list[dict[str, Any]]:
         """Retrieve memories for the authenticated user."""
 
+        client = self._get_authenticated_client(
+            access_token
+        )
+
         response = (
-            self.client
+            client
             .table("memories")
             .select("*")
             .eq("user_id", user_id)
