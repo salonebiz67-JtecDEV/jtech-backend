@@ -1,8 +1,8 @@
 """
-JTech AI — Conversation Context
+JTech AI — AI Context
 
-Builds the conversation context that is sent
-to the AI brain.
+Builds the complete context that can be provided
+to the JTech AI brain.
 """
 
 from typing import Any
@@ -13,7 +13,7 @@ def build_conversation_context(
 ) -> str:
     """
     Convert stored conversation messages into
-    a readable context for Gemini.
+    readable conversation context.
     """
 
     if not messages:
@@ -42,3 +42,35 @@ def build_conversation_context(
         )
 
     return "\n".join(context_lines)
+
+
+def build_ai_context(
+    conversation_messages: list[dict[str, Any]] | None = None,
+    memory_context: str = "",
+) -> str:
+    """
+    Build the complete context for JTech.
+
+    Combines current conversation history with
+    relevant long-term memories.
+    """
+
+    conversation_context = build_conversation_context(
+        conversation_messages or []
+    )
+
+    context_sections: list[str] = []
+
+    if memory_context.strip():
+        context_sections.append(
+            "RELEVANT LONG-TERM MEMORY:\n"
+            f"{memory_context.strip()}"
+        )
+
+    if conversation_context.strip():
+        context_sections.append(
+            "CURRENT CONVERSATION:\n"
+            f"{conversation_context.strip()}"
+        )
+
+    return "\n\n".join(context_sections)
