@@ -6,10 +6,17 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
 from app.ai.brain import jtech_brain
+from app.api.conversations import (
+    router as conversations_router,
+)
 from app.api.memory import router as memory_router
 from app.auth.dependencies import get_current_user
 from app.core.config import settings
-from app.core.identity import AI_FULL_NAME, AI_NAME, DEVELOPER_NAME
+from app.core.identity import (
+    AI_FULL_NAME,
+    AI_NAME,
+    DEVELOPER_NAME,
+)
 
 
 app = FastAPI(
@@ -31,6 +38,8 @@ class ChatResponse(BaseModel):
 
 app.include_router(memory_router)
 
+app.include_router(conversations_router)
+
 
 @app.get("/")
 async def root():
@@ -51,7 +60,10 @@ async def health():
     }
 
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post(
+    "/chat",
+    response_model=ChatResponse,
+)
 async def chat(
     request: ChatRequest,
     current_user: dict = Depends(get_current_user),
