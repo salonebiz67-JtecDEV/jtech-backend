@@ -27,6 +27,9 @@ async def get_current_user(
     """
     Verify the Supabase access token and return
     the authenticated user's information.
+
+    The access token is also returned so database
+    operations can execute in the user's auth context.
     """
 
     access_token = credentials.credentials
@@ -45,6 +48,7 @@ async def get_current_user(
         return {
             "id": str(user.id),
             "email": user.email,
+            "access_token": access_token,
         }
 
     except HTTPException:
