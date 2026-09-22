@@ -7,7 +7,7 @@ and the Gemini API.
 
 from google import genai
 
-from app.ai.context import build_conversation_context
+from app.ai.context import build_ai_context
 from app.core.config import settings
 from app.ai.prompts import SYSTEM_PROMPT
 
@@ -24,26 +24,21 @@ class JTechBrain:
         self,
         user_message: str,
         conversation_messages: list[dict] | None = None,
+        memory_context: str = "",
     ) -> str:
         """
-        Send a user message and optional conversation
-        history to Gemini.
+        Send a user message and available context
+        to Gemini.
         """
 
-        conversation_messages = (
-            conversation_messages or []
+        ai_context = build_ai_context(
+            conversation_messages=conversation_messages,
+            memory_context=memory_context,
         )
 
-        conversation_context = (
-            build_conversation_context(
-                conversation_messages
-            )
-        )
-
-        if conversation_context:
+        if ai_context:
             prompt = (
-                "CONVERSATION HISTORY:\n"
-                f"{conversation_context}\n\n"
+                f"{ai_context}\n\n"
                 "CURRENT USER MESSAGE:\n"
                 f"{user_message}"
             )
