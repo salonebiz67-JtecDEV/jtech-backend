@@ -6,6 +6,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
 from app.ai.brain import jtech_brain
+from app.api.memory import router as memory_router
 from app.auth.dependencies import get_current_user
 from app.core.config import settings
 from app.core.identity import AI_FULL_NAME, AI_NAME, DEVELOPER_NAME
@@ -26,6 +27,9 @@ class ChatResponse(BaseModel):
     assistant: str
     message: str
     user_id: str
+
+
+app.include_router(memory_router)
 
 
 @app.get("/")
