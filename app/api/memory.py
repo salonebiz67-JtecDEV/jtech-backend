@@ -33,6 +33,7 @@ async def save_memory(
     try:
         memory = await memory_service.save_memory(
             user_id=current_user["id"],
+            access_token=current_user["access_token"],
             category=request.category,
             content=request.content,
             importance=request.importance,
@@ -65,6 +66,7 @@ async def get_memories(
     try:
         memories = await memory_service.get_memories(
             user_id=current_user["id"],
+            access_token=current_user["access_token"],
         )
 
         return {
