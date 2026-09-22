@@ -1,10 +1,12 @@
 """
 JTech AI — Memory Service
 
-Handles long-term memory operations.
+Handles long-term memory operations using Supabase.
 """
 
 from typing import Any
+
+from supabase import Client, create_client
 
 from app.core.config import settings
 
@@ -13,8 +15,10 @@ class MemoryService:
     """Handles JTech long-term memory."""
 
     def __init__(self) -> None:
-        self.supabase_url = settings.supabase_url
-        self.supabase_key = settings.supabase_key
+        self.client: Client = create_client(
+            settings.supabase_url,
+            settings.supabase_key,
+        )
 
     async def save_memory(
         self,
@@ -23,31 +27,43 @@ class MemoryService:
         content: str,
         importance: int = 5,
     ) -> dict[str, Any]:
-        """
-        Save a memory for a user.
+        """Save a memory for a user."""
 
-        Supabase database integration will be added next.
-        """
+        response = (
+            self.client
+            .table("memories")
+            .insert(
+                {
+                    "user_id": user_id,
+                    "category": category,
+                    "content": content,
+                    "importance": importance,
+                }
+            )
+            .execute()
+        )
 
-        return {
-            "status": "pending",
-            "user_id": user_id,
-            "category": category,
-            "content": content,
-            "importance": importance,
-        }
+        if not response.data:
+            raise RuntimeError("Failed to save memory.")
+
+        return response.data[0]
 
     async def get_memories(
         self,
         user_id: str,
     ) -> list[dict[str, Any]]:
-        """
-        Retrieve memories belonging to a user.
+        """Retrieve memories belonging to a user."""
 
-        Supabase database integration will be added next.
-        """
+        response = (
+            self.client
+            .table("memories")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("created_at", desc=True)
+            .execute()
+        )
 
-        return []
+        return response.data or []
 
 
 memory_service = MemoryService()
