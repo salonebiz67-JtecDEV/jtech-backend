@@ -12,9 +12,10 @@ from google.genai import types
 
 from app.ai.context import build_ai_context
 from app.ai.gemini_tools import build_gemini_tools
+from app.ai.tool_calls import JTechToolCall
 from app.ai.tool_processor import tool_processor
-from app.core.config import settings
 from app.ai.prompts import SYSTEM_PROMPT
+from app.core.config import settings
 
 
 class JTechBrain:
@@ -116,14 +117,13 @@ class JTechBrain:
                 function_call.args or {}
             )
 
+            tool_call = JTechToolCall(
+                name=tool_name,
+                arguments=arguments,
+            )
+
             result = await tool_processor.process(
-                tool_call=__import__(
-                    "app.ai.tool_calls",
-                    fromlist=["JTechToolCall"],
-                ).JTechToolCall(
-                    name=tool_name,
-                    arguments=arguments,
-                ),
+                tool_call=tool_call,
                 user_id=user_id,
                 access_token=access_token,
             )
