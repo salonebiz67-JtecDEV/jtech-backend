@@ -7,14 +7,18 @@ the JTech tool registry.
 
 from google.genai import types
 
+from app.ai.tool_loader import load_tools
 from app.ai.tools import tool_registry
 
 
 def build_gemini_tools() -> list[types.Tool]:
     """
-    Build Gemini Tool objects from the registered
-    JTech tools.
+    Load all registered JTech tools and build
+    Gemini-compatible tool declarations.
     """
+
+    # Make sure all JTech tools are registered.
+    load_tools()
 
     declarations = []
 
