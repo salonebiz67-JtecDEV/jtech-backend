@@ -59,7 +59,7 @@ class JTechBrain:
         """
         Generate a JTech response.
 
-        Gemini may request a registered tool. Tool execution
+        Gemini may request registered tools. Tool execution
         is handled by JTech's own security and execution layers.
         """
 
@@ -76,9 +76,22 @@ class JTechBrain:
             tools=tools or None,
         )
 
+        # Keep the complete Gemini conversation history for
+        # the manual function-calling flow.
+        contents: list[Any] = [
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part.from_text(
+                        text=prompt
+                    )
+                ],
+            )
+        ]
+
         response = self.client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=prompt,
+            contents=contents,
             config=config,
         )
 
@@ -105,6 +118,26 @@ class JTechBrain:
             )
 
         # --------------------------------------------
+        # KEEP GEMINI'S TOOL-CALL RESPONSE
+        # --------------------------------------------
+
+        if not response.candidates:
+            return (
+                "JTech received an invalid response "
+                "from the AI service."
+            )
+
+        model_content = response.candidates[0].content
+
+        if model_content is None:
+            return (
+                "JTech received an incomplete tool request "
+                "from the AI service."
+            )
+
+        contents.append(model_content)
+
+        # --------------------------------------------
         # EXECUTE REQUESTED TOOLS
         # --------------------------------------------
 
@@ -112,6 +145,9 @@ class JTechBrain:
 
         for function_call in response.function_calls:
             tool_name = function_call.name
+
+            if not tool_name:
+                continue
 
             arguments: dict[str, Any] = dict(
                 function_call.args or {}
@@ -151,21 +187,17 @@ class JTechBrain:
         # SEND TOOL RESULTS BACK TO GEMINI
         # --------------------------------------------
 
-        contents = [
-            types.Content(
-                role="user",
-                parts=[
-                    types.Part.from_text(
-                        text=prompt
-                    )
-                ],
-            ),
-            response.candidates[0].content,
+        if not function_response_parts:
+            return (
+                "JTech received an invalid tool request."
+            )
+
+        contents.append(
             types.Content(
                 role="user",
                 parts=function_response_parts,
-            ),
-        ]
+            )
+        )
 
         final_response = (
             self.client.models.generate_content(
