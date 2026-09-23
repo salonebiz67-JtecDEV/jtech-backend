@@ -48,12 +48,25 @@ class ToolProcessor:
                     error="Authentication required.",
                 )
 
+        # --------------------------------------------
+        # COPY AI ARGUMENTS
+        # --------------------------------------------
+
         arguments: dict[str, Any] = {
             **tool_call.arguments,
         }
 
-        # Never allow Gemini to choose the authenticated
-        # user's identity.
+        # --------------------------------------------
+        # PROTECTED BACKEND CONTEXT
+        # --------------------------------------------
+        #
+        # Gemini must never be allowed to select or
+        # replace the authenticated user's identity.
+        #
+
+        arguments.pop("user_id", None)
+        arguments.pop("access_token", None)
+
         arguments["user_id"] = user_id
         arguments["access_token"] = access_token
 
