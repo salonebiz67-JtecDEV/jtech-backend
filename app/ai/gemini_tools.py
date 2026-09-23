@@ -5,28 +5,33 @@ Builds Gemini-compatible tool declarations from
 the JTech tool registry.
 """
 
-from typing import Any
+from google.genai import types
 
 from app.ai.tools import tool_registry
 
 
-def build_gemini_tool_declarations() -> list[dict[str, Any]]:
+def build_gemini_tools() -> list[types.Tool]:
     """
-    Build function declarations for Gemini.
-
-    Only tools explicitly registered in the JTech
-    tool registry are exposed to Gemini.
+    Build Gemini Tool objects from the registered
+    JTech tools.
     """
 
-    declarations: list[dict[str, Any]] = []
+    declarations = []
 
     for tool in tool_registry.list_tools():
         declarations.append(
-            {
-                "name": tool.name,
-                "description": tool.description,
-                "parameters": tool.parameters,
-            }
+            types.FunctionDeclaration(
+                name=tool.name,
+                description=tool.description,
+                parameters=tool.parameters,
+            )
         )
 
-    return declarations
+    if not declarations:
+        return []
+
+    return [
+        types.Tool(
+            function_declarations=declarations,
+        )
+    ]
