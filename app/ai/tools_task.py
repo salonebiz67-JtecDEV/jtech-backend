@@ -50,9 +50,7 @@ task_tool = JTechTool(
         "properties": {
             "title": {
                 "type": "string",
-                "description": (
-                    "Short title of the task."
-                ),
+                "description": "Short title of the task.",
             },
             "description": {
                 "type": "string",
@@ -68,9 +66,7 @@ task_tool = JTechTool(
                     "high",
                     "urgent",
                 ],
-                "description": (
-                    "Task priority."
-                ),
+                "description": "Task priority.",
             },
             "due_at": {
                 "type": "string",
@@ -88,4 +84,5 @@ task_tool = JTechTool(
 )
 
 
+# Register the tool with the central registry.
 tool_registry.register(task_tool)
