@@ -4,6 +4,7 @@ JTech AI — Reminder Tool
 Allows JTech to request creation of a persistent reminder.
 """
 
+from datetime import datetime
 from typing import Any
 
 from app.ai.tools import JTechTool, tool_registry
@@ -21,6 +22,38 @@ async def create_reminder(
     """
     Create a persistent reminder for the authenticated user.
     """
+
+    title = title.strip()
+
+    if not title:
+        raise ValueError(
+            "Reminder title cannot be empty."
+        )
+
+    remind_at = remind_at.strip()
+
+    if not remind_at:
+        raise ValueError(
+            "Reminder date and time is required."
+        )
+
+    # Validate that the supplied value is a real ISO
+    # 8601 datetime before sending it to the database.
+    try:
+        datetime.fromisoformat(
+            remind_at.replace("Z", "+00:00")
+        )
+    except ValueError as exc:
+        raise ValueError(
+            "Reminder date and time must be valid "
+            "ISO 8601 format."
+        ) from exc
+
+    if message is not None:
+        message = message.strip() or None
+
+    if repeat_rule is not None:
+        repeat_rule = repeat_rule.strip() or None
 
     reminder = await reminder_service.create_reminder(
         user_id=user_id,
@@ -49,9 +82,7 @@ reminder_tool = JTechTool(
         "properties": {
             "title": {
                 "type": "string",
-                "description": (
-                    "Short title of the reminder."
-                ),
+                "description": "Short title of the reminder.",
             },
             "remind_at": {
                 "type": "string",
