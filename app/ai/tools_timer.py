@@ -22,7 +22,7 @@ async def create_timer(
     """
     Create a timer action for the authenticated Android client.
 
-    The authentication values are supplied by the backend,
+    Authentication values are supplied by the backend,
     not by Gemini.
     """
 
@@ -51,9 +51,10 @@ async def create_timer(
         "action": {
             "type": "create_timer",
             "requires_confirmation": False,
-            "user_id": user_id,
-            "duration_seconds": duration_seconds,
-            "label": label,
+            "parameters": {
+                "duration_seconds": duration_seconds,
+                "label": label,
+            },
         },
     }
 
@@ -70,15 +71,11 @@ timer_tool = JTechTool(
         "properties": {
             "duration_seconds": {
                 "type": "integer",
-                "description": (
-                    "Timer duration in seconds."
-                ),
+                "description": "Timer duration in seconds.",
             },
             "label": {
                 "type": "string",
-                "description": (
-                    "Optional label for the timer."
-                ),
+                "description": "Optional label for the timer.",
             },
         },
         "required": [
