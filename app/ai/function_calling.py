@@ -1,15 +1,15 @@
 """
 JTech AI — Gemini Function Calling
 
-Handles Gemini tool requests and routes them through
-JTech's controlled tool system.
+Handles Gemini function-calling operations and routes
+them through JTech's controlled tool system.
 """
 
 from typing import Any
 
-from app.ai.gemini_tools import (
-    build_gemini_tool_declarations,
-)
+from google.genai import types
+
+from app.ai.gemini_tools import build_gemini_tools
 from app.ai.tool_calls import JTechToolCall
 from app.ai.tool_processor import tool_processor
 
@@ -19,12 +19,12 @@ class FunctionCallingEngine:
 
     def get_tool_declarations(
         self,
-    ) -> list[dict[str, Any]]:
+    ) -> list[types.Tool]:
         """
-        Return the tools exposed to Gemini.
+        Return the Gemini-compatible JTech tools.
         """
 
-        return build_gemini_tool_declarations()
+        return build_gemini_tools()
 
     async def execute_tool_call(
         self,
