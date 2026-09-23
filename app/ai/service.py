@@ -87,10 +87,12 @@ class AIService:
         # GENERATE JTECH RESPONSE
         # --------------------------------------------
 
-        response = jtech_brain.generate_response(
+        response = await jtech_brain.generate_response(
             user_message=user_message,
             conversation_messages=previous_messages,
             memory_context=memory_context,
+            user_id=user_id,
+            access_token=access_token,
         )
 
         # --------------------------------------------
