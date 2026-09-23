@@ -16,10 +16,20 @@ from app.ai.tools import JTechTool, tool_registry
 async def create_timer(
     duration_seconds: int,
     label: str = "Timer",
+    user_id: str | None = None,
+    access_token: str | None = None,
 ) -> dict[str, Any]:
     """
-    Create a timer action for the Android client.
+    Create a timer action for the authenticated Android client.
+
+    The authentication values are supplied by the backend,
+    not by Gemini.
     """
+
+    if not user_id or not access_token:
+        raise ValueError(
+            "Authentication is required to create a timer."
+        )
 
     if duration_seconds <= 0:
         raise ValueError(
@@ -40,6 +50,8 @@ async def create_timer(
         "status": "action_required",
         "action": {
             "type": "create_timer",
+            "requires_confirmation": False,
+            "user_id": user_id,
             "duration_seconds": duration_seconds,
             "label": label,
         },
