@@ -45,3 +45,19 @@ class JTechActionResult(BaseModel):
     data: dict[str, Any] = Field(
         default_factory=dict
     )
+
+
+def create_action(
+    action_type: str,
+    parameters: dict[str, Any] | None = None,
+    requires_confirmation: bool = False,
+) -> JTechAction:
+    """
+    Create a validated JTech Android action.
+    """
+
+    return JTechAction(
+        type=action_type,
+        requires_confirmation=requires_confirmation,
+        parameters=parameters or {},
+    )
